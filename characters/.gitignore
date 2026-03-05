@@ -1,0 +1,3 @@
+# Keep the characters directory but ignore its contents
+characters/*
+!characters/.gitkeep

@@ -1,0 +1,95 @@
+/* MakeChar Extension Styles */
+
+/* Main container styling */
+#makechar-container {
+    padding: 10px;
+}
+
+/* Character management panel */
+.makechar-character-panel {
+    background: var(--background-fill-primary);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+/* Slot rows - image and text on same line */
+.makechar-slot-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    align-items: flex-start;
+}
+
+.makechar-slot-row .makechar-image-col {
+    flex: 1;
+    min-width: 200px;
+}
+
+.makechar-slot-row .makechar-text-col {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* Image upload styling */
+.makechar-image-col .gradio-image {
+    border: 2px dashed var(--border-color-primary);
+    border-radius: 8px;
+    transition: border-color 0.2s;
+}
+
+.makechar-image-col .gradio-image:hover {
+    border-color: var(--color-accent);
+}
+
+/* Combined prompt section */
+.makechar-prompt-section {
+    background: var(--background-fill-secondary);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.makechar-prompt-section .gradio-textbox {
+    background: var(--input-background-fill);
+    border: 1px solid var(--border-color-primary);
+    border-radius: 6px;
+}
+
+/* Button styling */
+.makechar-btn-new {
+    background: var(--button-secondary-background-fill);
+    color: var(--button-secondary-text-color);
+}
+
+.makechar-btn-save {
+    background: var(--button-primary-background-fill);
+    color: var(--button-primary-text-color);
+}
+
+.makechar-btn-send {
+    background: var(--button-primary-background-fill);
+    color: var(--button-primary-text-color);
+    height: 100%;
+}
+
+/* Status message */
+.makechar-status {
+    font-size: 0.9em;
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .makechar-slot-row {
+        flex-direction: column;
+    }
+    
+    .makechar-slot-row .makechar-image-col,
+    .makechar-slot-row .makechar-text-col {
+        width: 100%;
+        min-width: unset;
+    }
+}
