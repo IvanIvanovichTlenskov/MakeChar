@@ -268,8 +268,10 @@ class MakeCharScript(scripts.Script):
             outputs=[final_prompt],
             _js="sendToPositivePrompt"
         )
-        
-        return [char_dropdown] + image_components + text_components + [final_prompt]
+
+        # Return empty list to avoid "too many variables" error
+        # The UI is already built and event handlers are registered
+        return []
 
     def run(self, p, *args):
         pass
