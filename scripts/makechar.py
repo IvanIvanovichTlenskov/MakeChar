@@ -4,7 +4,7 @@ import os
 import base64
 from pathlib import Path
 from PIL import Image
-from modules import scripts, script_callbacks
+from modules import scripts
 import modules.shared as shared
 
 
@@ -119,7 +119,39 @@ class MakeCharScript(scripts.Script):
 
     def ui(self, is_img2img):
         ensure_characters_dir()
-        
+
+        # Load CSS
+        css_content = ""
+        if STYLE_FILE.exists():
+            with open(STYLE_FILE, "r", encoding="utf-8") as f:
+                css_content = f.read()
+
+        # Inject JavaScript
+        js_code = """
+<script>
+function sendToPositivePrompt(promptText) {
+    const txt2imgPrompt = document.getElementById('txt2img_prompt');
+    const img2imgPrompt = document.getElementById('img2img_prompt');
+    let targetPrompt = null;
+    if (txt2imgPrompt && txt2imgPrompt.offsetParent !== null) {
+        targetPrompt = txt2imgPrompt;
+    } else if (img2imgPrompt && img2imgPrompt.offsetParent !== null) {
+        targetPrompt = img2imgPrompt;
+    } else if (txt2imgPrompt) {
+        targetPrompt = txt2imgPrompt;
+    }
+    if (targetPrompt) {
+        targetPrompt.value = promptText;
+        targetPrompt.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    return promptText;
+}
+</script>
+"""
+
+        # Inject CSS and JS
+        gr.HTML(value=f"<style>{css_content}</style>{js_code}")
+
         # State variables
         character_names = get_character_names()
         
@@ -275,46 +307,3 @@ class MakeCharScript(scripts.Script):
 
     def run(self, p, *args):
         pass
-
-
-# JavaScript for sending prompt to main UI
-def on_ui_tabs():
-    # Load CSS
-    css_content = ""
-    if STYLE_FILE.exists():
-        with open(STYLE_FILE, "r", encoding="utf-8") as f:
-            css_content = f.read()
-    
-    js_code = """
-<script>
-function sendToPositivePrompt(promptText) {
-    // Try to find the positive prompt textarea in txt2img tab
-    const txt2imgPrompt = document.getElementById('txt2img_prompt');
-    const img2imgPrompt = document.getElementById('img2img_prompt');
-    
-    let targetPrompt = null;
-    
-    // Check which tab is active or try txt2img first
-    if (txt2imgPrompt && txt2imgPrompt.offsetParent !== null) {
-        targetPrompt = txt2imgPrompt;
-    } else if (img2imgPrompt && img2imgPrompt.offsetParent !== null) {
-        targetPrompt = img2imgPrompt;
-    } else if (txt2imgPrompt) {
-        targetPrompt = txt2imgPrompt;
-    }
-    
-    if (targetPrompt) {
-        targetPrompt.value = promptText;
-        // Trigger input event to update Gradio state
-        targetPrompt.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-    
-    return promptText;
-}
-</script>
-"""
-    return js_code + f"<style>{css_content}</style>", "MakeChar", "MakeChar"
-
-
-# Register the JavaScript and CSS
-script_callbacks.on_ui_tabs(on_ui_tabs)
