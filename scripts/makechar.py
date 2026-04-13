@@ -313,7 +313,7 @@ function sendToPositivePrompt(promptText) {
 }
 </script>
 """
-    return js_code + f"<style>{css_content}</style>", "MakeChar"
+    return js_code + f"<style>{css_content}</style>", "MakeChar", "MakeChar"
 
 
 # Register the JavaScript and CSS
