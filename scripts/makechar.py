@@ -279,7 +279,15 @@ function sendToPositivePrompt(promptText) {
         fn=lambda x: x,
         inputs=[final_prompt],
         outputs=[],
-        _js="(txt) => { setTimeout(() => { const targets = ['txt2img_prompt', 'img2img_prompt']; for (const id of targets) { const el = document.getElementById(id); if (el && el.offsetParent !== null) { el.value = txt; el.dispatchEvent(new Event('input', { bubbles: true })); break; } } }, 100); return txt; }"
+        _js="""(txt) => {
+            const el = document.getElementById('txt2img_prompt');
+            if (el) {
+                el.value = txt;
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            return txt;
+        }"""
     )
 
 
