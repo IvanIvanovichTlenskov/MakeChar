@@ -153,7 +153,8 @@ function sendToPositivePrompt(promptText) {
                     label="Select Character",
                     choices=character_names,
                     value=character_names[0] if character_names else None,
-                    interactive=True
+                    interactive=True,
+                    allow_custom_value=True
                 )
             with gr.Column(scale=1):
                 new_btn = gr.Button("New", variant="secondary")
@@ -194,6 +195,9 @@ function sendToPositivePrompt(promptText) {
             with gr.Column(scale=1):
                 send_btn = gr.Button("Send to Positive Prompt", variant="primary")
 
+        # Status display
+        status_box = gr.Textbox(label="Status", interactive=False, value="Ready")
+
     # === Event Handlers ===
 
     # Auto-update combined prompt when any text field changes
@@ -207,13 +211,13 @@ function sendToPositivePrompt(promptText) {
     # Load character data when dropdown selection changes
     def on_character_select(char_name):
         if not char_name:
-            return [None] * SLOTS_COUNT + [""] * SLOTS_COUNT + [""]
+            return [None] * SLOTS_COUNT + [""] * SLOTS_COUNT + [""] + ["Ready"]
 
         data = load_character_data(char_name)
         images = load_character_images(char_name)
 
         if data is None:
-            return [None] * SLOTS_COUNT + [""] * SLOTS_COUNT + [""]
+            return [None] * SLOTS_COUNT + [""] * SLOTS_COUNT + [""] + [f"No saved data for '{char_name}'"]
 
         slot_texts = []
         for i, slot in enumerate(data.get("slots", [])):
@@ -223,22 +227,22 @@ function sendToPositivePrompt(promptText) {
             slot_texts.append("")
 
         combined = combine_prompts(*slot_texts)
-        return images + slot_texts + [combined]
+        return images + slot_texts + [combined] + [f"Loaded: '{char_name}'"]
 
     char_dropdown.change(
         fn=on_character_select,
         inputs=[char_dropdown],
-        outputs=image_components + text_components + [final_prompt]
+        outputs=image_components + text_components + [final_prompt, status_box]
     )
 
     # New button - clear all fields
     def on_new_character():
-        return [None] * SLOTS_COUNT + [""] * SLOTS_COUNT + [""] + [gr.Dropdown(value=None)]
+        return [None] * SLOTS_COUNT + [""] * SLOTS_COUNT + [""] + [gr.Dropdown(value=None)] + ["Cleared — enter a new character name and click Save"]
 
     new_btn.click(
         fn=on_new_character,
         inputs=[],
-        outputs=image_components + text_components + [final_prompt, char_dropdown]
+        outputs=image_components + text_components + [final_prompt, char_dropdown, status_box]
     )
 
     # Save button - save current state
@@ -247,7 +251,7 @@ function sendToPositivePrompt(promptText) {
         texts = args[SLOTS_COUNT:SLOTS_COUNT * 2]
 
         if not char_name or not char_name.strip():
-            return gr.update(), "Please enter a character name or select from dropdown"
+            return gr.update(), "Error: Please enter a character name"
 
         char_name = char_name.strip()
 
@@ -263,15 +267,15 @@ function sendToPositivePrompt(promptText) {
             new_choices = get_character_names()
             return (
                 gr.Dropdown(choices=new_choices, value=char_name),
-                f"Character '{char_name}' saved successfully!"
+                f"Saved: '{char_name}' ({SLOTS_COUNT} slots)"
             )
         except Exception as e:
-            return gr.update(), f"Error saving character: {str(e)}"
+            return gr.update(), f"Error: {str(e)}"
 
     save_btn.click(
         fn=on_save_character,
         inputs=[char_dropdown] + image_components + text_components,
-        outputs=[char_dropdown, gr.Textbox(label="Status")]
+        outputs=[char_dropdown, status_box]
     )
 
     # Send to Positive Prompt button
