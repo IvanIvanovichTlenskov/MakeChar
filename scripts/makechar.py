@@ -205,7 +205,7 @@ def create_makechar_ui():
 
     # New button - clear all fields
     def on_new_character():
-        return [None] * SLOTS_COUNT + [""] * SLOTS_COUNT + [""] + [gr.Dropdown(value=None)] + ["Cleared — enter a new character name and click Save"]
+        return [None] * SLOTS_COUNT + [""] * SLOTS_COUNT + [""] + [gr.update(value=None)] + ["Cleared — enter a new character name and click Save"]
 
     new_btn.click(
         fn=on_new_character,
@@ -233,10 +233,7 @@ def create_makechar_ui():
         try:
             save_character_data(char_name, slots_data)
             new_choices = get_character_names()
-            return (
-                gr.Dropdown(choices=new_choices, value=char_name),
-                f"Saved: '{char_name}' ({SLOTS_COUNT} slots)"
-            )
+            return gr.update(choices=new_choices, value=char_name), f"Saved: '{char_name}' ({SLOTS_COUNT} slots)"
         except Exception as e:
             return gr.update(), f"Error: {str(e)}"
 
