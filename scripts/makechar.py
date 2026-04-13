@@ -278,8 +278,8 @@ function sendToPositivePrompt(promptText) {
     send_btn.click(
         fn=lambda x: x,
         inputs=[final_prompt],
-        outputs=[final_prompt],
-        _js="sendToPositivePrompt"
+        outputs=[],
+        _js="(txt) => { setTimeout(() => { const targets = ['txt2img_prompt', 'img2img_prompt']; for (const id of targets) { const el = document.getElementById(id); if (el && el.offsetParent !== null) { el.value = txt; el.dispatchEvent(new Event('input', { bubbles: true })); break; } } }, 100); return txt; }"
     )
 
 
