@@ -111,38 +111,6 @@ def create_makechar_ui():
     """Create the MakeChar tab UI."""
     ensure_characters_dir()
 
-    # Load CSS
-    css_content = ""
-    if STYLE_FILE.exists():
-        with open(STYLE_FILE, "r", encoding="utf-8") as f:
-            css_content = f.read()
-
-    # Inject JavaScript
-    js_code = """
-<script>
-function sendToPositivePrompt(promptText) {
-    const txt2imgPrompt = document.getElementById('txt2img_prompt');
-    const img2imgPrompt = document.getElementById('img2img_prompt');
-    let targetPrompt = null;
-    if (txt2imgPrompt && txt2imgPrompt.offsetParent !== null) {
-        targetPrompt = txt2imgPrompt;
-    } else if (img2imgPrompt && img2imgPrompt.offsetParent !== null) {
-        targetPrompt = img2imgPrompt;
-    } else if (txt2imgPrompt) {
-        targetPrompt = txt2imgPrompt;
-    }
-    if (targetPrompt) {
-        targetPrompt.value = promptText;
-        targetPrompt.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-    return promptText;
-}
-</script>
-"""
-
-    # Inject CSS and JS
-    gr.HTML(value=f"<style>{css_content}</style>{js_code}")
-
     character_names = get_character_names()
 
     with gr.Group():
