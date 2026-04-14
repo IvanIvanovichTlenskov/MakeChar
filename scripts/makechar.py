@@ -12,7 +12,8 @@ import modules.shared as shared
 EXTENSION_DIR = Path(__file__).parent.parent
 CHARACTERS_DIR = EXTENSION_DIR / "characters"
 STYLE_FILE = EXTENSION_DIR / "style.css"
-SLOTS_COUNT = 3
+SLOTS_COUNT = 4
+SLOT_LABELS = ["Head", "Top", "Bottom", "Slot 4"]
 
 
 def ensure_characters_dir():
@@ -154,10 +155,11 @@ def create_makechar_ui():
         text_components = []
 
         for i in range(SLOTS_COUNT):
+            label = SLOT_LABELS[i] if i < len(SLOT_LABELS) else f"Slot {i + 1}"
             with gr.Row():
                 with gr.Column(scale=1):
                     img = gr.Image(
-                        label=f"Slot {i + 1} Image",
+                        label=f"{label} Image",
                         type="pil",
                         sources=["upload", "clipboard"],
                         height=200
@@ -165,8 +167,8 @@ def create_makechar_ui():
                     image_components.append(img)
                 with gr.Column(scale=1):
                     txt = gr.Textbox(
-                        label=f"Slot {i + 1} Description",
-                        placeholder=f"Describe attribute {i + 1} (e.g., hairstyle, clothing)...",
+                        label=f"{label} Description",
+                        placeholder=f"Describe {label.lower()} attribute...",
                         lines=3
                     )
                     text_components.append(txt)
