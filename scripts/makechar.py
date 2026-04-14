@@ -44,6 +44,24 @@ def load_character_data(char_name):
         return json.load(f)
 
 
+def delete_character(char_name):
+    """Delete character directory and all its files."""
+    if not char_name:
+        return False
+
+    char_dir = CHARACTERS_DIR / char_name
+    if not char_dir.exists():
+        return False
+
+    try:
+        import shutil
+        shutil.rmtree(char_dir)
+        return True
+    except Exception as e:
+        print(f"[MakeChar] Error deleting character: {e}")
+        return False
+
+
 def save_character_data(char_name, slots_data):
     """Save character data to JSON file and save images."""
     char_dir = CHARACTERS_DIR / char_name
@@ -128,6 +146,8 @@ def create_makechar_ui():
                 new_btn = gr.Button("New", variant="secondary")
             with gr.Column(scale=1):
                 save_btn = gr.Button("Save", variant="primary")
+            with gr.Column(scale=1):
+                delete_btn = gr.Button("Delete", variant="stop")
 
         # === Main zone (Character constructor) ===
         image_components = []
@@ -240,6 +260,29 @@ def create_makechar_ui():
     save_btn.click(
         fn=on_save_character,
         inputs=[char_dropdown] + image_components + text_components,
+        outputs=[char_dropdown, status_box]
+    )
+
+    # Delete button - remove selected character
+    def on_delete_character(char_name):
+        if not char_name or not char_name.strip():
+            return gr.update(), "Error: Please select a character to delete"
+
+        char_name = char_name.strip()
+
+        if delete_character(char_name):
+            new_choices = get_character_names()
+            new_value = new_choices[0] if new_choices else None
+            return (
+                gr.update(choices=new_choices, value=new_value),
+                f"Deleted: '{char_name}'"
+            )
+        else:
+            return gr.update(), f"Error: Could not delete '{char_name}'"
+
+    delete_btn.click(
+        fn=on_delete_character,
+        inputs=[char_dropdown],
         outputs=[char_dropdown, status_box]
     )
 
