@@ -301,6 +301,17 @@ def create_makechar_ui():
                 console.error('[MakeChar] Clipboard error:', err);
             });
 
+            // Helper to set textarea value properly for Gradio
+            function setPromptValue(el, value) {
+                const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+                nativeInputValueSetter.call(el, value);
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+                // Trigger Gradio-specific events
+                el.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true }));
+                el.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
+            }
+
             // Find and click the txt2img tab
             const tabs = document.querySelectorAll('#tabs > button, .tab-nav > button, [id^="tab_"] button');
             for (const tab of tabs) {
@@ -310,13 +321,16 @@ def create_makechar_ui():
                 }
             }
 
-            // Also try to set the prompt value directly
-            const el = document.getElementById('txt2img_prompt');
-            if (el) {
-                el.value = txt;
-                el.dispatchEvent(new Event('input', { bubbles: true }));
-                el.dispatchEvent(new Event('change', { bubbles: true }));
-            }
+            // Wait for tab switch, then set the prompt value
+            setTimeout(() => {
+                const el = document.getElementById('txt2img_prompt');
+                if (el) {
+                    setPromptValue(el, txt);
+                    console.log('[MakeChar] Prompt value set');
+                } else {
+                    console.warn('[MakeChar] txt2img_prompt element not found');
+                }
+            }, 200);
         }"""
     )
 
