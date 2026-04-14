@@ -294,13 +294,29 @@ def create_makechar_ui():
         inputs=[final_prompt],
         outputs=[],
         _js="""(txt) => {
+            // Copy to clipboard
+            navigator.clipboard.writeText(txt).then(() => {
+                console.log('[MakeChar] Copied to clipboard');
+            }).catch(err => {
+                console.error('[MakeChar] Clipboard error:', err);
+            });
+
+            // Find and click the txt2img tab
+            const tabs = document.querySelectorAll('#tabs > button, .tab-nav > button, [id^="tab_"] button');
+            for (const tab of tabs) {
+                if (tab.textContent.trim() === 'txt2img') {
+                    tab.click();
+                    break;
+                }
+            }
+
+            // Also try to set the prompt value directly
             const el = document.getElementById('txt2img_prompt');
             if (el) {
                 el.value = txt;
                 el.dispatchEvent(new Event('input', { bubbles: true }));
                 el.dispatchEvent(new Event('change', { bubbles: true }));
             }
-            return txt;
         }"""
     )
 
